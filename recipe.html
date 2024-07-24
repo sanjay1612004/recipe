@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="recipe.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="container">
+        <h2 class="reciapp">Recipe App</h2>
+        <div class="sholders">
+            <input placeholder="search item to get recipe" class="tbox">
+            <button class="search"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+       
+        <div>
+            <div class="result"></div>
+        </div>
+
+        
+    </div>
+    <script>
+        let container=document.querySelector(".container");
+    let sbtn=document.querySelector(".search");
+    
+    let result=document.querySelector(".result");
+    let url="https://www.themealdb.com/api/json/v1/1/search.php?s=";
+    sbtn.addEventListener('click',()=>{
+        let tbox=document.querySelector(".tbox").value;
+        if (tbox.length==0){
+            result.innerHTML=`<h2 class='err1'>Input cant be empty</h2>`;
+        }
+        else{
+            let tbox=document.querySelector(".tbox").value;
+            fetch(url + tbox)
+            .then((resp) => resp.json())
+            .then((data) => {
+            let mymeal=data.meals[0];
+            let count=1;
+            let ingre=[];
+            for (let i in mymeal){
+                let ingredient='';
+                let measure='';
+                
+                if (i.startsWith("strIngredient") && mymeal[i]){
+                    ingredient=mymeal[i];
+                    measure= mymeal[`strMeasure` + count];
+                    count+=1;
+                    ingre.push(`${measure} ${ingredient}`);
+                    
+                   
+                }
+            }
+            console.log(ingre);
+            
+            result.innerHTML=`
+            <div class='details'>
+            <h2>${mymeal.strMeal}</h2>
+            <h4 class='sub'>${mymeal.strArea}</h4>
+            </div>
+            <div id='ingredientcon'></div>
+            <div id='recipe'>
+                <button id='hide'>X</button>
+                <pre id='instructions'>
+                    ${mymeal.strInstructions}
+                </pre>
+            </div>
+            <button id='show'>View Recipe</button>
+            `;
+            let ingredientcon=document.querySelector("#ingredientcon");
+            let parent=document.createElement('ul');
+            let recipe=document.querySelector('#recipe');
+            let hide=document.querySelector('#hide');
+            let show=document.querySelector("#show");
+
+            for (let i of ingre){
+                let child=document.createElement('li');
+                child.innerText=i;
+                parent.appendChild(child);
+                ingredientcon.appendChild(parent);
+            }
+            hide.addEventListener('click',()=>{
+                recipe.style.display='none';
+            });
+            show.addEventListener('click',()=>{
+                recipe.style.display='block';
+            });
+
+        }).catch(()=>{
+            result.innerHTML=`<h3 class=err2>Invalid Input</h3>`
+        });
+        }
+    })
+    
+
+    </script>
+</body>
+</html>
